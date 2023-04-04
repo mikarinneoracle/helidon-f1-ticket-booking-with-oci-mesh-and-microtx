@@ -1,0 +1,110 @@
+# Values for installing Oracle TMM Quick start application on OKE environement.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+applicationNameSpace: default
+
+# TMM pod replicas in the cluster
+tmmReplicaCount: 1
+
+# TMM Container image information
+tmmImage:
+  # Image path in private Container registry
+  image: container-registry.oracle.com/database/otmm:22.3.1
+  imagePullPolicy: Always
+
+tmmConfiguration:
+  tmmAppName: otmm-tcs
+  port: 9000
+  # The tmmExternalURL will consist of the Ingress Gateway hostname and port (if not 80 and 443). Example - https://{tmmExternalURL.host} OR https://{tmmExternalURL.host}:{tmmExternalURL.port}
+  # This is for generating TmmURL
+  # The generated TmmURL may look like ${tmmExternalURL.protocol}://${tmmExternalURL.host}:{tmmExternalURL.port}/api/v1/xa-transaction/${TXID}
+  tmmExternalURL:
+    #The protocol allowed at the Ingress Gateway. Must be one of - http or https
+    protocol:
+    #The external host name or IP address of the Ingress Gateway
+    host:
+    #The port of the Ingress Gateway. Example 80 for http or 443 for https
+    port:
+
+  # TMM supports three coordinator types: XA, LRA, TCC
+  # Specify which coordinator type(s) to be enabled
+  xaCoordinator:
+    enabled: "true"
+  lraCoordinator:
+    enabled: "true"
+  tccCoordinator:
+    enabled: "true"
+
+  #Compatibility with Narayana LRA Coordinator
+  narayanaLraCompatibilityMode:
+    enabled: "false"
+
+
+  storage:
+    type: memory
+
+  logging:
+    # TCS log level - "error | warning | info | debug"
+    level: info
+    httpTraceEnabled: true
+
+  #Authorization settings
+  authorization:
+    enabled: "false"
+    #This indicates the Authorization (Access) and Refresh-Token propagation is enabled/disabled.
+    authTokenPropagationEnabled: "false"
+    identityProviderName: ""
+    identityProviderUrl: ""
+    identityProviderClientId: ""
+
+  #Retry settings
+  #The maximum number of times the TMM (Transaction Coordinator) will retry an operation in case of certain failures
+  maxRetryCount: 10
+  #The minimum retry interval in milliseconds
+  minRetryInterval: 1000
+  #The maximum retry interval in milliseconds
+  maxRetryInterval: 10000
+
+  # Skips verifying the TLS cert before doing http connect to secure callback url. Default false
+  skipVerifyInsecureTLS: false
+
+  # The counters update interval in seconds after which the values are updated in storage. Valid range is 30 - 1800 seconds.
+  countersUpdateInterval: 60
+
+# Authentication using JWT token. Provide JWT token issuer url
+authentication:
+  requestsWithNoJWT: ALLOW # ALLOW or DENY
+  jwt:
+    # Identifies the issuer that issued the JWT: example - "http://10.20.30.10:8080/auth/realms/istio"
+    issuer: 
+    # URL of the provider’s public key set to validate signature of the JWT. Example URL: "http://10.20.30.10:8080/auth/realms/istio/protocol/openid-connect/certs"
+    jwksUri: 
+
+encryption:
+  # The current sercretKeyVersion that will be used (from the list below). Can be 1 or 2 ...
+  encryptionSecretKeyVersion: "1"
+  encryptionSecretKeys:
+    # Add new secretKey with the kubernetes secret name of the key and increment the version by 1 starting with 1.
+    secretKeys:
+      - secretKeyName: ""
+        version: "1"
+    #  - secretKeyName: "TMMSECRETKEY2"
+    #    version: "2"
+
+transactionToken:
+  transactionTokenEnabled: "false"
+  # The current transactionTokenKeyPairVersion that will be used (from the list below). Can be 1 or 2 ...
+  transactionTokenKeyPairVersion: ""
+  transactionTokenKeyPairs:
+    # Add new KeyPair with the kubernetes secret names of the privateKey, publicKey, privateKeyPassword and increment the version by 1 starting with 1.
+    keyPairs:
+#      - privateKeyName: "TMMPRIVKEY1"
+#        publicKeyName: "TMMPUBKEY1"
+#        privateKeyPasswordName: "TMMPRIVKEYPASSWD1"
+#        version: "1"
+#      - privateKeyName: "TMMPRIVKEY2"
+#        publicKeyName: "TMMPUBKEY2"
+#        privateKeyPasswordName: "TMMPRIVKEYPASSWD2"
+#        version: "2"
+

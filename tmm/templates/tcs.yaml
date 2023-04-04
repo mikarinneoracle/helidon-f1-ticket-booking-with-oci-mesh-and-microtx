@@ -1,0 +1,275 @@
+##################################################################################################
+# mtm-tcs
+##################################################################################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcs-config
+data:
+  LOGGING_LEVEL: {{ .Values.tmmConfiguration.logging.level }}
+  HTTP_TRACE_ENABLED: {{ .Values.tmmConfiguration.logging.httpTraceEnabled | quote }}
+  {{- if .Values.tmmConfiguration.cache }}
+  CACHE_ENABLED: {{ .Values.tmmConfiguration.cache.enabled | quote }}
+  CACHE_MAX_CAPACITY: {{ .Values.tmmConfiguration.cache.maxCapacity | quote }}
+  {{- end }}
+  STORAGE_TYPE: {{ .Values.tmmConfiguration.storage.type }}
+  ID: {{ .Values.tmmConfiguration.tmmId }}
+  INTERNAL_ADDR: http://{{ .Values.tmmConfiguration.tmmAppName }}:{{ .Values.tmmConfiguration.port }}
+  {{- if .Values.tmmConfiguration.tmmExternalURL.host }}
+    {{- if or (eq (.Values.tmmConfiguration.tmmExternalURL.port | toString) "80") (eq (.Values.tmmConfiguration.tmmExternalURL.port | toString) "443") (not (.Values.tmmConfiguration.tmmExternalURL.port )) }}
+  EXTERNAL_ADDR: {{ .Values.tmmConfiguration.tmmExternalURL.protocol }}://{{ .Values.tmmConfiguration.tmmExternalURL.host }}
+    {{- else }}
+  EXTERNAL_ADDR: {{ .Values.tmmConfiguration.tmmExternalURL.protocol }}://{{ .Values.tmmConfiguration.tmmExternalURL.host }}:{{ .Values.tmmConfiguration.tmmExternalURL.port }}
+    {{- end }}
+  {{- else }}
+  EXTERNAL_ADDR: http://{{ .Values.tmmConfiguration.tmmAppName }}:{{ .Values.tmmConfiguration.port }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.etcd }}
+  STORAGE_ETCD_ENDPOINTS: {{ .Values.tmmConfiguration.storage.etcd.endpoints | quote}}
+    {{- if .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapFileName }}
+  STORAGE_ETCD_CREDENTIAL_SECRET_FILE_NAME: {{ .Values.tmmConfiguration.storage.etcd.credentialSecret.secretFileName }}
+    {{- end }}
+    {{- if .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapFileName }}
+  STORAGE_ETCD_CA_CERT_FILE_NAME: {{ .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapFileName }}
+    {{- end }}
+    {{- if .Values.tmmConfiguration.storage.etcd.skipHostNameVerification }}
+  STORAGE_ETCD_SKIP_HOSTNAME_VERIFICATION: {{ .Values.tmmConfiguration.storage.etcd.skipHostNameVerification | quote  }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.db }}
+    {{- if .Values.tmmConfiguration.storage.db.walletConfigMap.configMapName }}
+  STORAGE_DB_CONNECTION_STRING: {{ .Values.tmmConfiguration.storage.db.connectionString }}&wallet_location=/etc/config/dbwallet
+    {{- else }}
+  STORAGE_DB_CONNECTION_STRING: {{ .Values.tmmConfiguration.storage.db.connectionString | quote }}
+    {{- end }}
+    {{- if .Values.tmmConfiguration.storage.db.connectionParams }}
+  STORAGE_DB_CONNECTION_PARAMS: {{ .Values.tmmConfiguration.storage.db.connectionParams }}
+    {{- end }}
+  {{- end }}
+  XA_COORDINATOR_ENABLED: {{ .Values.tmmConfiguration.xaCoordinator.enabled | quote }}
+  XA_COORDINATOR_TX_MAX_TIMEOUT: {{ .Values.tmmConfiguration.xaCoordinator.txMaxTimeout | quote }}
+  LRA_COORDINATOR_ENABLED: {{ .Values.tmmConfiguration.lraCoordinator.enabled | quote }}
+  TCC_COORDINATOR_ENABLED: {{ .Values.tmmConfiguration.tccCoordinator.enabled | quote }}
+  LISTEN_ADDR: "0.0.0.0:9000"
+  NARAYANA_LRA_COMPATIBILITY_MODE: {{ .Values.tmmConfiguration.narayanaLraCompatibilityMode.enabled | quote }}
+  AUTHORIZATION_ENABLED: {{ .Values.tmmConfiguration.authorization.enabled | quote }}
+  TRANSACTION_TOKEN_ENABLED: {{ .Values.transactionToken.transactionTokenEnabled | quote }}
+  {{- if .Values.transactionToken.transactionTokenKeyPairs.keyPairs }}
+  TRANSACTION_TOKEN_KEY_PAIRS: {{ .Values.transactionToken.transactionTokenKeyPairs | toJson | quote }}
+  {{- end }}
+  {{- if .Values.transactionToken.transactionTokenKeyPairVersion }}
+  TRANSACTION_TOKEN_KEY_PAIR_VERSION: {{ .Values.transactionToken.transactionTokenKeyPairVersion | quote }}
+  {{- end }}
+  AUTHORIZATION_TOKEN_PROPAGATION_ENABLED: {{ .Values.tmmConfiguration.authorization.authTokenPropagationEnabled | quote }}
+  {{- if (eq (.Values.tmmConfiguration.authorization.authTokenPropagationEnabled | lower) "true") }}
+  ENCRYPTION_SECRET_KEYS_CHECK: {{ required "encryptionSecretKeys.secretKeys is required" (first .Values.encryption.encryptionSecretKeys.secretKeys).secretKeyName }}
+  {{- end }}
+  {{- if .Values.encryption.encryptionSecretKeys.secretKeys }}
+  ENCRYPTION_SECRET_KEYS: {{ .Values.encryption.encryptionSecretKeys | toJson | quote }}
+  {{- end }}
+  {{- if .Values.encryption.encryptionSecretKeyVersion }}
+  ENCRYPTION_SECRET_KEY_VERSION: {{ .Values.encryption.encryptionSecretKeyVersion | quote }}
+  {{- end }}
+  IDENTITY_PROVIDER_NAME: {{ .Values.tmmConfiguration.authorization.identityProviderName | quote }}
+  IDENTITY_PROVIDER_URL: {{ .Values.tmmConfiguration.authorization.identityProviderUrl | quote }}
+  IDENTITY_PROVIDER_CLIENT_ID: {{ .Values.tmmConfiguration.authorization.identityProviderClientId | quote }}
+  MAX_RETRY_COUNT: {{ .Values.tmmConfiguration.maxRetryCount | quote }}
+  MIN_RETRY_INTERVAL: {{ .Values.tmmConfiguration.minRetryInterval | quote }}
+  MAX_RETRY_INTERVAL: {{ .Values.tmmConfiguration.maxRetryInterval | quote }}
+  {{- if .Values.tmmConfiguration.storage.completedTransactionTTL }}
+  COMPLETED_TX_TTL: {{ .Values.tmmConfiguration.storage.completedTransactionTTL | quote }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.countersUpdateInterval }}
+  COUNTERS_UPDATE_INTERVAL_IN_SECS: {{ .Values.tmmConfiguration.countersUpdateInterval | quote }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.skipVerifyInsecureTLS }}
+  SKIP_VERIFY_INSECURE_TLS: {{ .Values.tmmConfiguration.skipVerifyInsecureTLS | quote }}
+  {{- end }}
+  #similarly add other key-values here
+
+  APPLICATION_NAMESPACE: {{ .Values.applicationNameSpace | quote }}
+  {{- if .Values.authentication.requestsWithNoJWT  }}
+  REQUEST_WITH_NO_JWT: {{ .Values.authentication.requestsWithNoJWT | quote }}
+  {{- end }}
+  {{- if .Values.authentication.jwt.issuer }}
+  JWT_ISSUER: {{ .Values.authentication.jwt.issuer | quote }}
+  {{- end }}
+  {{- if .Values.authentication.jwt.jwksUri }}
+  JWT_JWKS_URI: {{ .Values.authentication.jwt.jwksUri | quote }}
+  {{- end }}
+  PORT: {{ .Values.tmmConfiguration.port | quote }}
+  {{- if .Values.tmmConfiguration.storage.db }}
+  {{- if .Values.tmmConfiguration.storage.db.credentialSecretName }}
+  DB_CREDENTIALS_SECRET_NAME: {{ .Values.tmmConfiguration.storage.db.credentialSecretName | quote }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.db.walletConfigMap.configMapName }}
+  DB_CONFIGMAP_NAME: {{ .Values.tmmConfiguration.storage.db.walletConfigMap.configMapName | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.etcd }}
+  {{- if .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapFileName }}
+  ETCD_CONFIGMAP_FILENAME: {{ .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapFileName | quote }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapName }}
+  ETCD_CONFIGMAP_NAME: {{ .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapName | quote }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.etcd.credentialSecret.secretFileName }}
+  ETCD_SECRET_FILENAME: {{ .Values.tmmConfiguration.storage.etcd.credentialSecret.secretFileName | quote }}
+  {{- end }}
+  {{- if .Values.tmmConfiguration.storage.etcd.credentialSecret.secretName }}
+  ETCD_SECRET_NAME: {{ .Values.tmmConfiguration.storage.etcd.credentialSecret.secretName | quote }}
+  {{- end }}
+  {{- end }}
+  TMM_APPNAME: {{ .Values.tmmConfiguration.tmmAppName | quote }}
+  {{- if .Values.tmmImage.imagePullSecret }}
+  TMM_IMAGE_PULLSECRET: {{ .Values.tmmImage.imagePullSecret | quote }}
+  {{- end }}
+  TMM_IMAGE: {{ .Values.tmmImage.image | quote }}
+  TMM_IMAGE_PULLPOLICY: {{ .Values.tmmImage.imagePullPolicy | quote }}
+  TMM_REPLICA_COUNT: {{ .Values.tmmReplicaCount | quote }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.tmmConfiguration.tmmAppName }}
+  labels:
+    app: {{ .Values.tmmConfiguration.tmmAppName }}
+    service: {{ .Values.tmmConfiguration.tmmAppName }}
+spec:
+  ports:
+    - port: {{ .Values.tmmConfiguration.port }}
+      name: http
+  selector:
+    app: {{ .Values.tmmConfiguration.tmmAppName }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.tmmConfiguration.tmmAppName }}
+  labels:
+    account: {{ .Values.tmmConfiguration.tmmAppName }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.tmmConfiguration.tmmAppName }}
+  labels:
+    app: {{ .Values.tmmConfiguration.tmmAppName }}
+    version: v1
+spec:
+  serviceName: {{ .Values.tmmConfiguration.tmmAppName }}
+  replicas: {{ .Values.tmmReplicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.tmmConfiguration.tmmAppName }}
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.tmmConfiguration.tmmAppName }}
+        version: v1
+    spec:
+      serviceAccountName: {{ .Values.tmmConfiguration.tmmAppName }}
+      containers:
+        - name: {{ .Values.tmmConfiguration.tmmAppName }}
+          image: {{ .Values.tmmImage.image }}
+          imagePullPolicy: {{ .Values.tmmImage.imagePullPolicy }}
+          ports:
+            - containerPort: 9000
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            {{- if .Values.tmmConfiguration.storage.db }}
+            {{- if .Values.tmmConfiguration.storage.db.walletConfigMap.configMapName }}
+            - name: wallet-volume
+              mountPath: /etc/config/dbwallet
+            {{- end }}
+            {{- end }}
+            {{- if .Values.tmmConfiguration.storage.etcd }}
+            {{- if .Values.tmmConfiguration.storage.etcd.credentialSecret.secretName}}
+            - name: etcdecert-volume
+              mountPath: /etc/config/etcdecert
+            {{- end }}
+            {{- if .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapName}}
+            - name: etcdcacert-volume
+              mountPath: /etc/config/etcdcacert
+            {{- end }}
+            {{- end }}
+          env:
+            - name: CONFIG_MAP_PATH
+              value: /etc/config
+            {{- if .Values.tmmConfiguration.storage.db }}
+            {{- if .Values.tmmConfiguration.storage.db.credentialSecretName }}
+            - name: STORAGE_DB_CREDENTIAL
+              valueFrom:
+                secretKeyRef:
+                  key: secret
+                  name: {{ .Values.tmmConfiguration.storage.db.credentialSecretName }}
+            {{- end }}
+            {{- end }}
+            {{- if (eq (.Values.tmmConfiguration.authorization.authTokenPropagationEnabled | lower) "true") }}
+            {{ range $i, $secretKey := .Values.encryption.encryptionSecretKeys.secretKeys }}
+            - name: {{ $secretKey.secretKeyName }}
+              valueFrom:
+                secretKeyRef:
+                  key: secret
+                  name: {{ $secretKey.secretKeyName }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.transactionToken.transactionTokenKeyPairs.keyPairs }}
+            {{ range $i, $keyPair := .Values.transactionToken.transactionTokenKeyPairs.keyPairs }}
+            - name: {{ $keyPair.privateKeyName }}
+              valueFrom:
+                secretKeyRef:
+                  key: secret
+                  name: {{ $keyPair.privateKeyName }}
+            - name: {{ $keyPair.publicKeyName }}
+              valueFrom:
+                secretKeyRef:
+                  key: secret
+                  name: {{ $keyPair.publicKeyName }}
+            - name: {{ $keyPair.privateKeyPasswordName }}
+              valueFrom:
+                secretKeyRef:
+                  key: secret
+                  name: {{ $keyPair.privateKeyPasswordName }}
+            {{- end }}
+            {{- end }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: tcs-config
+        {{- if .Values.tmmConfiguration.storage.db }}
+        {{- if .Values.tmmConfiguration.storage.db.walletConfigMap.configMapName }}
+        - name: wallet-volume
+          configMap:
+            name: {{ .Values.tmmConfiguration.storage.db.walletConfigMap.configMapName }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.tmmConfiguration.storage.etcd }}
+        {{- if .Values.tmmConfiguration.storage.etcd.credentialSecret.secretName}}
+        - name: etcdecert-volume
+          secret:
+            secretName: {{ .Values.tmmConfiguration.storage.etcd.credentialSecret.secretName }}
+        {{- end }}
+        {{- if .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapName }}
+        - name: etcdcacert-volume
+          configMap:
+            name: {{ .Values.tmmConfiguration.storage.etcd.cacertConfigMap.configMapName }}
+        {{- end }}
+        {{- end }}
+      securityContext:
+        runAsUser: 1000
+      imagePullSecrets:
+      {{- if .Values.tmmImage.imagePullSecret }}
+      - name: {{ .Values.tmmImage.imagePullSecret }}
+      {{- end }}
+---

@@ -1,0 +1,367 @@
+kind: Mesh
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-booking
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  certificateAuthorities:
+    - id: ocid1.certificateauthority.oc1.eu-amsterdam-1.amaaaaaauevftmqaajcazwjonw6bqeaso5zmkdhadixczlz6rb5jpe2rinja
+  displayName: f1-booking-helidon-demo
+  mtls:
+    minimum: PERMISSIVE
+---
+kind: VirtualService
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-booking-service
+spec:
+  mesh:
+    ref:
+      name: f1-booking
+  defaultRoutingPolicy:
+    type: UNIFORM
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  hosts:
+    - f1-booking-service:7000
+    - f1-booking-service
+---
+kind: VirtualDeployment
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-booking-service-v1
+spec:
+  virtualService:
+    ref:
+      name: f1-booking-service
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  listener:
+    - port: 7000
+      protocol: HTTP
+  accessLogging:
+    isEnabled: true
+  serviceDiscovery:
+    type: DNS
+    hostname: f1-booking-service-v1
+---
+kind: VirtualService
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-seat-booking-service
+spec:
+  mesh:
+    ref:
+      name: f1-booking
+  defaultRoutingPolicy:
+    type: UNIFORM
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  hosts:
+    - f1-seat-booking-service:7001
+    - f1-seat-booking-service
+---
+kind: VirtualDeployment
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-seat-booking-service-v1
+spec:
+  virtualService:
+    ref:
+      name: f1-seat-booking-service
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  listener:
+    - port: 7001
+      protocol: HTTP
+  accessLogging:
+    isEnabled: true
+  serviceDiscovery:
+    type: DNS
+    hostname: f1-seat-booking-service-v1
+---
+kind: VirtualService
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-payment-service
+spec:
+  mesh:
+    ref:
+      name: f1-booking
+  defaultRoutingPolicy:
+    type: UNIFORM
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  hosts:
+    - f1-payment-service:7002
+    - f1-payment-service
+---
+kind: VirtualDeployment
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-payment-service-v1
+spec:
+  virtualService:
+    ref:
+      name: f1-payment-service
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  listener:
+    - port: 7002
+      protocol: HTTP
+  accessLogging:
+    isEnabled: true
+  serviceDiscovery:
+    type: DNS
+    hostname: f1-payment-service-v1
+---
+kind: VirtualService
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: otmm-tcs
+spec:
+  mesh:
+    ref:
+      name: f1-booking
+  defaultRoutingPolicy:
+    type: UNIFORM
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  hosts:
+    - otmm-tcs:9000
+    - otmm-tcs
+---
+kind: VirtualDeployment
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: otmm-tcs
+spec:
+  virtualService:
+    ref:
+      name: otmm-tcs
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  listener:
+    - port: 9000
+      protocol: HTTP
+  accessLogging:
+    isEnabled: true
+  serviceDiscovery:
+    type: DNS
+    hostname: otmm-tcs
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: VirtualServiceRouteTable
+metadata:
+  name: f1-booking-route-table
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  virtualService:
+    ref:
+      name: f1-booking-service
+  routeRules:
+    - httpRoute:
+        destinations:
+          - virtualDeployment:
+              ref:
+                name: f1-booking-service-v1
+            weight: 100
+            port: 7000
+        isGrpc: false
+        path: /
+        pathType: PREFIX
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: VirtualServiceRouteTable
+metadata:
+  name: f1-seat-booking-route-table
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  virtualService:
+    ref:
+      name: f1-seat-booking-service
+  routeRules:
+    - httpRoute:
+        destinations:
+          - virtualDeployment:
+              ref:
+                name: f1-seat-booking-service-v1
+            weight: 100
+            port: 7001
+        isGrpc: false
+        path: /
+        pathType: PREFIX
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: VirtualServiceRouteTable
+metadata:
+  name: f1-payment-route-table
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  virtualService:
+    ref:
+      name: f1-payment-service
+  routeRules:
+    - httpRoute:
+        destinations:
+          - virtualDeployment:
+              ref:
+                name: f1-payment-service-v1
+            weight: 100
+            port: 7002
+        isGrpc: false
+        path: /
+        pathType: PREFIX
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: VirtualServiceRouteTable
+metadata:
+  name: otmm-tcs-route-table
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  virtualService:
+    ref:
+      name: otmm-tcs
+  routeRules:
+    - httpRoute:
+        destinations:
+          - virtualDeployment:
+              ref:
+                name: otmm-tcs
+            weight: 100
+            port: 9000
+        isGrpc: false
+        path: /
+        pathType: PREFIX
+---
+kind: IngressGateway
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-booking-ingress-gateway
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  mesh:
+    ref:
+      name: f1-booking
+  hosts:
+    - name: f1-booking-host
+      hostnames:
+        - home.f1-booking.io
+        - home.f1-booking.io:7000
+      listeners:
+        - port: 7000
+          protocol: HTTP
+          tls:
+            mode: DISABLED
+  accessLogging:
+    isEnabled: true
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: IngressGatewayDeployment
+metadata:
+  name: f1-booking-ingress-gateway-deployment
+spec:
+  ingressGateway:
+    ref:
+      name: f1-booking-ingress-gateway
+  deployment:
+    autoscaling:
+      minPods: 1
+      maxPods: 1
+  ports:
+    - protocol: TCP
+      port: 7000
+      serviceport: 80
+  service:
+    type: LoadBalancer
+---
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+kind: IngressGatewayRouteTable
+metadata:
+  name: f1-booking-ingress-gateway-route-table
+spec:
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  ingressGateway:
+    ref:
+      name: f1-booking-ingress-gateway
+  routeRules:
+    - httpRoute:
+        path: /
+        pathType: PREFIX
+        isGrpc: false
+        destinations:
+          - virtualService:
+              ref:
+                name: f1-booking-service
+            weight: 100
+            port: 7000
+        ingressGatewayHost:
+          name: f1-booking-host
+---
+kind: AccessPolicy
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: f1-booking-policy
+spec:
+  mesh:
+    ref:
+      name: f1-booking
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  rules:
+    - action: ALLOW
+      source:
+        ingressGateway:
+          ref:
+            name: f1-booking-ingress-gateway
+      destination:
+        virtualService:
+          ref:
+            name: f1-booking-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: f1-seat-booking-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: f1-payment-service
+---
+kind: AccessPolicy
+apiVersion: servicemesh.oci.oracle.com/v1beta1
+metadata:
+  name: otmm-policy
+spec:
+  mesh:
+    ref:
+      name: f1-booking
+  compartmentId: ocid1.compartment.oc1..aaaaaaaabwqnkg5r4sgb72edair3gaxqckws6p2qgxlyq67mnnqxvntwm4vq
+  rules:
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: otmm-tcs
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-seat-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: otmm-tcs
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-payment-service
+      destination:
+        virtualService:
+          ref:
+            name: otmm-tcs

@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: f1-payment-service
+  labels:
+    app: f1-payment-service
+spec:
+  type: NodePort
+  selector:
+    app: f1-payment-service
+  ports:
+  - port: 7002
+    targetPort: 7002
+    name: http
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f1-payment-service
+  labels:
+    app: f1-payment-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f1-payment-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: f1-payment-service
+        version: v1
+    spec:
+      containers:
+        - name: f1-payment-service
+          image: ams.ocir.io/frsxwtjslf35/f1-payment-service:${buildId}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7002
+      imagePullSecrets:
+      - name: amsocirsecret

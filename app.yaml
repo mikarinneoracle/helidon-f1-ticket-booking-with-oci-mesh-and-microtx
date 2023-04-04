@@ -1,0 +1,198 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: f1-booking-service
+  labels:
+    app: f1-booking-service
+    service: f1-booking-service
+spec:
+  ports:
+    - port: 7000
+      name: http
+  selector:
+    app: f1-booking-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: f1-booking-service-v1
+  labels:
+    app: f1-booking-service
+    service: f1-booking-service
+    version: v1
+spec:
+  ports:
+    - port: 7000
+      name: http
+  selector:
+    app: f1-booking-service
+    version: v1
+---    
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f1-booking-service
+  labels:
+    account: f1-booking-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f1-booking-service-v1
+  labels:
+    app: f1-booking-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f1-booking-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: f1-booking-service
+        version: v1
+    spec:
+      serviceAccountName: f1-booking-service
+      containers:
+        - name: f1-booking-service
+          image: ams.ocir.io/frsxwtjslf35/f1-booking-service:${buildId}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7000
+      imagePullSecrets:
+        - name: amsocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: f1-seat-booking-service
+  labels:
+    app: f1-seat-booking-service
+    service: f1-seat-booking-service
+spec:
+  ports:
+    - port: 7001
+      name: http
+  selector:
+    app: f1-seat-booking-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: f1-seat-booking-service-v1
+  labels:
+    app: f1-seat-booking-service
+    service: f1-seat-booking-service
+    version: v1
+spec:
+  ports:
+    - port: 7001
+      name: http
+  selector:
+    app: f1-seat-booking-service
+    version: v1
+---    
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f1-seat-booking-service
+  labels:
+    account: f1-seat-booking-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f1-seat-booking-service-v1
+  labels:
+    app: f1-seat-booking-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f1-seat-booking-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: f1-seat-booking-service
+        version: v1
+    spec:
+      serviceAccountName: f1-seat-booking-service
+      containers:
+        - name: f1-seat-booking-service
+          image: ams.ocir.io/frsxwtjslf35/f1-seat-booking-service:${buildId}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7001
+      imagePullSecrets:
+        - name: amsocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: f1-payment-service
+  labels:
+    app: f1-payment-service
+    service: f1-payment-service
+spec:
+  ports:
+    - port: 7002
+      name: http
+  selector:
+    app: f1-payment-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: f1-payment-service-v1
+  labels:
+    app: f1-payment-service
+    service: f1-payment-service
+    version: v1
+spec:
+  ports:
+    - port: 7002
+      name: http
+  selector:
+    app: f1-payment-service
+    version: v1
+---    
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f1-payment-service
+  labels:
+    account: f1-payment-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f1-payment-service-v1
+  labels:
+    app: f1-payment-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f1-payment-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: f1-payment-service
+        version: v1
+    spec:
+      serviceAccountName: f1-payment-service
+      containers:
+        - name: f1-payment-service
+          image: ams.ocir.io/frsxwtjslf35/f1-payment-service:${buildId}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7002
+      imagePullSecrets:
+        - name: amsocirsecret
+---

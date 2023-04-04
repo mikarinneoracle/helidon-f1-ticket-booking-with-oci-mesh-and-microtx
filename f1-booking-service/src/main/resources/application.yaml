@@ -1,0 +1,10 @@
+server:
+  port: 7000
+  static.classpath:
+    location: /WEB
+    welcome: index.html
+
+mp.lra:
+  coordinator.url: http://otmm-tcs:9000/api/v1/lra-coordinator
+  propagation.active: true
+  participant.url: http://f1-booking-service:7000
