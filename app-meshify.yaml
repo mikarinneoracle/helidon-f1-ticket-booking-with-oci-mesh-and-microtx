@@ -342,6 +342,33 @@ spec:
       source:
         virtualService:
           ref:
+            name: otmm-tcs
+      destination:
+        virtualService:
+          ref:
+            name: f1-booking-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: otmm-tcs
+      destination:
+        virtualService:
+          ref:
+            name: f1-seat-booking-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: otmm-tcs
+      destination:
+        virtualService:
+          ref:
+            name: f1-payment-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
             name: f1-booking-service
       destination:
         virtualService:
