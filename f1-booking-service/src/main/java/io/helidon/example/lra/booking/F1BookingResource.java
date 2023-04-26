@@ -40,7 +40,7 @@ public class F1BookingResource {
             seatResponse.close();
         }
         if (seatResponse.getStatus() != Response.Status.OK.getStatusCode()){
-            return Response.status(Response.Status.BAD_REQUEST)
+            return Response.status(Response.Status.OK)
                     .entity("{\"error\":\"Seat booking failed\"}")
                     .build();
         }
@@ -61,7 +61,7 @@ public class F1BookingResource {
         }
 
         if (payResponse.getStatus() != Response.Status.OK.getStatusCode()){
-            return Response.status(Response.Status.BAD_REQUEST)
+            return Response.status(Response.Status.OK)
                     .entity("{\"error\":\"Payment failed\"}")
                     .build();
         }
