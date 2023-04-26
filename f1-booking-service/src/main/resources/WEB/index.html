@@ -101,7 +101,6 @@ Author: Daniel Kec
         makePayment(selectedSeat.html(), cardNumber.val())
         paymentView.hide();
         clearSelection();
-        selectionView.show();
     });
 
     reserveButton.click(function () {
@@ -151,6 +150,7 @@ Author: Daniel Kec
     function notify(msg){
         notificationMessage.html(msg);
         notificationView.show().delay(3000).fadeOut();
+        selectionView.delay(3000).fadeIn();
     }
 
     function onSelection(id) {
