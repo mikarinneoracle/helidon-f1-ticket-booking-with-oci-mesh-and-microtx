@@ -327,6 +327,60 @@ spec:
         virtualService:
           ref:
             name: f1-payment-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: lra-coordinator
+      destination:
+        virtualService:
+          ref:
+            name: f1-booking-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: lra-coordinator
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-seat-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: lra-coordinator
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-payment-service
+      destination:
+        virtualService:
+          ref:
+            name: lra-coordinator
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-seat-booking-service
+      destination:
+        virtualService:
+          ref:
+            name: f1-booking-service
+    - action: ALLOW
+      source:
+        virtualService:
+          ref:
+            name: f1-payment-service
+      destination:
+        virtualService:
+          ref:
+            name: f1-booking-service
 ---
 kind: AccessPolicy
 apiVersion: servicemesh.oci.oracle.com/v1beta1
