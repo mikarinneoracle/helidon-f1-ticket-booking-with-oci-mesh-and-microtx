@@ -125,7 +125,18 @@ Author: Daniel Kec
         result
             .then(res => {
                 if (res.ok) {
-                    notify("Seat booked!")
+                    res.json().then(json => {
+                        if(json.success) {
+                            selectionView.hide()
+                            notify(json.success);
+                        } else if(json.error){
+                            selectionView.hide()
+                            showError(json.error);
+                        } else {
+                            selectionView.hide()
+                            showError("Something went wrong!");
+                        }
+                    });
                 } else {
                     res.json().then(json => {
                         selectionView.hide()

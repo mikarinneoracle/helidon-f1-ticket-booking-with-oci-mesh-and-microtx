@@ -67,7 +67,9 @@ public class F1BookingResource {
         }
 
         LOG.info("All Done!");
-        return Response.ok("Booking done!").build();
+        return Response.status(Response.Status.OK)
+                    .entity("{\"success\":\"Booking done!\"}")
+                    .build();
     }
 
     @Compensate
